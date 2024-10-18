@@ -16,7 +16,7 @@
  * Plugin Name:       WPOven Performance Logs
  * Plugin URI:        https://github.com/shyambaseapp/wpoven-performance-logs
  * Description:       WPOven Performance Logs monitoring page generation, memory, database queries, and API calls
- * Version:           1.0.0
+ * Version:           2.0.0
  * Author:            WPOven
  * Author URI:        https://www.wpoven.com/
  * License:           GPL-2.0+
@@ -54,7 +54,7 @@ $myUpdateChecker->setBranch('master');
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('WPOVEN_PERFORMANCE_LOGS_VERSION', '1.0.0');
+define('WPOVEN_PERFORMANCE_LOGS_VERSION', '2.0.0');
 if (!defined('WPOVEN_PERFORMANCE_LOGS_SLUG'))
 	define('WPOVEN_PERFORMANCE_LOGS_SLUG', 'wpoven-performance-logs');
 
@@ -76,7 +76,7 @@ function activate_wpoven_performance_logs()
 	require_once plugin_dir_path(__FILE__) . 'includes/class-wpoven-performance-logs-activator.php';
 	Wpoven_Performance_Logs_Activator::activate();
 
-	$wpoven_performance_logs = new Wpoven_Performance_Logs_Admin('wpoven-performance-logs', '1.0.0');
+	$wpoven_performance_logs = new Wpoven_Performance_Logs_Admin('wpoven-performance-logs', '2.0.0');
 	$wpoven_performance_logs->create_database_table();
 	update_option('wpoven_log_current_date', gmdate('Y-m-d'));
 }
