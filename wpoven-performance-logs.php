@@ -136,3 +136,41 @@ function wpoven_performance_logs_plugin_settings_link($links)
 	return $links;
 }
 add_filter('plugin_action_links_' . WPOVEN_PERFORMANCE_LOGS_PLUGIN_BASE, 'wpoven_performance_logs_plugin_settings_link');
+
+function check_translations_without_domain() {
+    // Common translation functions to check
+    $translation_functions = [
+        '__',
+        '_e',
+        'esc_html__',
+        'esc_html_e',
+        'esc_attr__',
+        'esc_attr_e',
+        'sprintf',
+        'translate',
+    ];
+
+    // Regular expression pattern
+    $pattern = '/(?:' . implode('|', $translation_functions) . ')\s*\(\s*[\'"].*?[\'"]\s*(?:\)|,)/';
+
+    // Your results array
+    $results = [];
+    
+    // Scan plugin directory
+    $plugin_dir = plugin_dir_path(__FILE__);
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($plugin_dir)
+    );
+
+    foreach ($files as $file) {
+        if ($file->isFile() && $file->getExtension() === 'php') {
+            $content = file_get_contents($file->getPathname());
+            if (preg_match_all($pattern, $content, $matches)) {
+                $results[$file->getPathname()] = $matches[0];
+            }
+        }
+    }
+
+    return $results;
+}
+add_action('admin_menu', 'check_translations_without_domain');
