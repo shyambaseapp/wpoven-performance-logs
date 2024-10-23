@@ -1,15 +1,8 @@
 {
-    "name": "your/package",
-    "description": "A short description of your package.",
-    "require": {
-        "php": "^7.4 || ^8.0"
-    },
-    "require-dev": {
-        "phpstan/phpstan": "^1.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Your\\Namespace\\": "src/"
-        }
+    "scripts": {
+        "install-hooks": [
+            "cp git-hooks/pre-commit .git/hooks/pre-commit",
+            "chmod +x .git/hooks/pre-commit"
+        ]
     }
 }
