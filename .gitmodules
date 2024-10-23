@@ -2,6 +2,3 @@
 	path = redux-framework
 	url = https://github.com/reduxframework/redux-framework.git
 
-[submodule "wp-content/plugins/redux-framework"]
-	path = wp-content/plugins/redux-framework
-	url = https://github.com/reduxframework/redux-framework.git
