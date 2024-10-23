@@ -57,17 +57,15 @@ jobs:
       - name: Clone the plugin repository
         run: |
           sudo mkdir -p /var/www/html/wp-content/plugins/wpoven-performance-logs/
-          pwd
-          sudo git clone  https://github.com/shyambaseapp/wpoven-performance-logs.git 
-          pwd
+          sudo git clone https://github.com/shyambaseapp/wpoven-performance-logs.git /var/www/html/wp-content/plugins/wpoven-performance-logs/
+          cd /var/www/html/wp-content/plugins/wpoven-performance-logs/
           sudo git submodule update --init --recursive
-          pwd
           sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/wpoven-performance-logs/
+
 
       - name: Activate the plugin
         run: |
           cd /var/www/html
-          include_path='.:/usr/local/lib/php'
           wp plugin activate wpoven-performance-logs 
 
         
