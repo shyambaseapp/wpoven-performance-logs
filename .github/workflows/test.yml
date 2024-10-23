@@ -77,5 +77,7 @@ jobs:
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: null
         run: |
-          find /var/www/html/wp-content/plugins/wpoven-performance-logs/ -type f ! -path "*/redux-framework/*" | xargs -n1 -I{} php -l {}
-          find /var/www/html/wp-content/plugins/wpoven-performance-logs/ -type f ! -path "*/your-textdomain-here/*" | xargs -n1 -I{} php -l {}
+          find /var/www/html/wp-content/plugins/wpoven-performance-logs/ -type f \
+            -not -path "*/redux-framework/*" \
+            -not -path "*/your-textdomain-here/*" | xargs -n1 -I{} php -l {}
+
