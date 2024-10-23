@@ -69,6 +69,11 @@ jobs:
           cd /var/www/html
           wp plugin activate wpoven-performance-logs 
 
+      - name: Run Plugin Check (Skip Text Domain)
+        run: |
+          cd /var/www/html/wp-content/plugins/wpoven-performance-logs
+          find . -name "*.php" ! -path "*/redux-framework/*" | xargs -n1 -I{} php -l {}
+          # Add any additional checks you want to perform here
         
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1
@@ -76,6 +81,4 @@ jobs:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: latest
-          SKIP_CHECKS: I18nCheck
-          PHPCOMPAT_SKIP_TESTS: textdomain
           
