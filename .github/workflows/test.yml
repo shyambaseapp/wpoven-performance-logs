@@ -12,6 +12,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      WP_PATH: /var/www/html
+      PLUGIN_PATH: /var/www/html/wp-content/plugins/wpoven-performance-logs
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,13 +38,13 @@ jobs:
         run: |
           wget https://wordpress.org/latest.tar.gz
           tar -xzf latest.tar.gz
-          sudo mv wordpress/* /var/www/html/
-          sudo cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-          sudo sed -i "s/database_name_here/wordpress_test/" /var/www/html/wp-config.php
-          sudo sed -i "s/username_here/root/" /var/www/html/wp-config.php
-          sudo sed -i "s/password_here/root/" /var/www/html/wp-config.php
+          sudo mv wordpress/* $WP_PATH
+          sudo cp $WP_PATH/wp-config-sample.php $WP_PATH/wp-config.php
+          sudo sed -i "s/database_name_here/wordpress_test/" $WP_PATH/wp-config.php
+          sudo sed -i "s/username_here/root/" $WP_PATH/wp-config.php
+          sudo sed -i "s/password_here/root/" $WP_PATH/wp-config.php
           mysql -u root --password=root -e "CREATE DATABASE wordpress_test"
-          sudo chmod -R 755 /var/www/html
+          sudo chmod -R 755 $WP_PATH
           sudo service apache2 start
 
       - name: Install WP-CLI
@@ -49,36 +53,28 @@ jobs:
           chmod +x wp-cli.phar
           sudo mv wp-cli.phar /usr/local/bin/wp
 
-      - name: Install Wordpress
+      - name: Install WordPress
         run: |
-          cd /var/www/html
+          cd $WP_PATH
           wp core install --url="http://localhost" --title="Test Site" --admin_user="admin" --admin_password="password" --admin_email="admin@example.com"
 
       - name: Clone the plugin repository
         run: |
-          sudo mkdir -p /var/www/html/wp-content/plugins/wpoven-performance-logs/
-          sudo git clone https://github.com/shyambaseapp/wpoven-performance-logs.git /var/www/html/wp-content/plugins/wpoven-performance-logs/
-          cd /var/www/html/wp-content/plugins/wpoven-performance-logs/
+          sudo mkdir -p $PLUGIN_PATH
+          sudo git clone https://github.com/shyambaseapp/wpoven-performance-logs.git $PLUGIN_PATH
+          cd $PLUGIN_PATH
           pwd
           sudo git submodule update --init --recursive
-          sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/wpoven-performance-logs/
-
+          sudo chown -R www-data:www-data $PLUGIN_PATH
 
       - name: Activate the plugin
         run: |
-          cd /var/www/html
+          cd $WP_PATH
           wp plugin activate wpoven-performance-logs 
 
-      - name: Run Plugin Check (Skip Text Domain)
-        run: |
-          cd /var/www/html/wp-content/plugins/wpoven-performance-logs
-          find . -name "*.php" ! -path "*/redux-framework/*" | xargs -n1 -I{} php -l {}
-          # Add any additional checks you want to perform here
-        
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1
         env:
-          PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
+          PLUGIN_DIR: $PLUGIN_PATH
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: latest
-          
