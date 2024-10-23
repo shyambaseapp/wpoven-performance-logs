@@ -71,7 +71,6 @@ jobs:
 
         
       - name: Run plugin check
-        uses: wordpress/plugin-check-action@v1
         env:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
