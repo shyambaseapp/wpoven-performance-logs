@@ -76,4 +76,6 @@ jobs:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: null
-          
+          run: |
+            grep -r 'your-textdomain-here' /var/www/html/wp-content/plugins/wpoven-performance-logs/
+            grep -r 'redux-framework' /var/www/html/wp-content/plugins/wpoven-performance-logs/
