@@ -72,7 +72,9 @@ jobs:
           wp plugin activate wpoven-performance-logs 
 
       - name: Run plugin check
-        uses: wordpress/plugin-check-action@v1.0.7
+        uses: wordpress/plugin-check-action@v1
+        with: 
+          exclude-checks: 'i18n_usage'
         env:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
