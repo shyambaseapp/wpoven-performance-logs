@@ -71,12 +71,13 @@ jobs:
 
         
       - name: Run plugin check
+        uses: wordpress/plugin-check-action@v1
         env:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: null
-        run: |
-          find /var/www/html/wp-content/plugins/wpoven-performance-logs/ -type f \
-            -not -path "*/redux-framework/*" \
-            -not -path "*/your-textdomain-here/*" | xargs -n1 -I{} php -l {}
+          run: |
+            find /var/www/html/wp-content/plugins/wpoven-performance-logs/ -type f \
+              -not -path "*/redux-framework/*" \
+              -not -path "*/your-textdomain-here/*" | xargs -n1 -I{} php -l {}
 
