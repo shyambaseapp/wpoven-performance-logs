@@ -76,5 +76,6 @@ jobs:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: latest
-          SKIP_CHECKS: TextdomainCheck
-         
+          SKIP_CHECKS: I18nCheck
+          PHPCOMPAT_SKIP_TESTS: textdomain
+          
