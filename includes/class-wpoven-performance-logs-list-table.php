@@ -96,26 +96,39 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
 
         // Prepare the query
         if (!empty($where_conditions)) {
-            $sql = $wpdb->prepare(
+            $cache_key = 'perf_logs_' . md5($wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}performance_logs WHERE " . implode(' OR ', $where_conditions),
                 $prepare_args
-            );
+            ));
+            $this->table_data = wp_cache_get($cache_key);
+
+            if (false === $this->table_data) {
+                $this->table_data = $wpdb->get_results($wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}performance_logs WHERE " . implode(' OR ', $where_conditions),
+                    $prepare_args
+                ), ARRAY_A);
+                if ($this->table_data !== null) {
+                    wp_cache_set($cache_key, $this->table_data, 'performance_logs', HOUR_IN_SECONDS);
+                }
+            }
         } else {
-            $sql = $wpdb->prepare(
+            $cache_key = 'perf_logs_' . md5($wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}performance_logs"
-            );
+            ));
+            $this->table_data = wp_cache_get($cache_key);
+
+            if (false === $this->table_data) {
+                $this->table_data = $wpdb->get_results($wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}performance_logs"
+                ), ARRAY_A);
+                if ($this->table_data !== null) {
+                    wp_cache_set($cache_key, $this->table_data, 'performance_logs', HOUR_IN_SECONDS);
+                }
+            }
         }
 
         // Get cached results or execute query
-        $cache_key = 'perf_logs_' . md5($sql);
-        $this->table_data = wp_cache_get($cache_key);
 
-        if (false === $this->table_data) {
-            $this->table_data = $wpdb->get_results($sql, ARRAY_A);
-            if ($this->table_data !== null) {
-                wp_cache_set($cache_key, $this->table_data, 'performance_logs', HOUR_IN_SECONDS);
-            }
-        }
 
         // global $wpdb;
         // $table_name = $wpdb->prefix . 'performance_logs';
