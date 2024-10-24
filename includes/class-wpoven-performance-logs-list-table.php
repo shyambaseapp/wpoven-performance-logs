@@ -69,99 +69,35 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'performance_logs';
+        $query = "SELECT * FROM {$table_name} ";
 
-        // Check if nonce is valid and not expired
-        $is_nonce_valid = isset($_POST['security_nonce']) &&
-            wp_verify_nonce($_POST['security_nonce'], 'bulk_action_logs');
-
-        // Initialize the base query with proper escaping
-        $query = $wpdb->prepare("SELECT * FROM {$table_name}");
-        $where_conditions = array();
-        $where_values = array();
-
-        // Search functionality
-        if (isset($_POST['s']) && !empty($_POST['s'])) {
-
-            $search_term = sanitize_text_field($_POST['s']);
-            $columns = array(
-                'url',
-                'execution_time',
-                'post_type',
-                'ip_address',
-                'total_queries',
-                'total_query_time',
-                'peak_memory_usage',
-                'timestamp'
-            );
-
-            $search_conditions = array();
+        if (isset($_POST['s'])) {
+            $columns = array('url', 'execution_time', 'post_type', 'ip_address', 'total_queries', 'total_query_time', 'peak_memory_usage', 'timestamp');
+            $conditions = array();
             foreach ($columns as $column) {
-                $search_conditions[] = $column . " LIKE %s";
-                $where_values[] = '%' . $wpdb->esc_like($search_term) . '%';
+                $conditions[] = $wpdb->prepare("{$column} LIKE %s", '%' . $wpdb->esc_like($_POST['s']) . '%');
             }
-
-            $where_conditions[] = '(' . implode(' OR ', $search_conditions) . ')';
+            $query .= " WHERE " . implode(" OR ", $conditions);
         }
-
-        // Build the WHERE clause if conditions exist
-        if (!empty($where_conditions)) {
-            $query = $wpdb->prepare(
-                "SELECT * FROM {$table_name} WHERE " . implode(' AND ', $where_conditions),
-                $where_values
-            );
-        }
-
-        // Deletion functionality
-        if (isset($_POST['action'])) {
-           
-
-            if ($_POST['action'] === 'delete_all' && isset($_POST['element']) && is_array($_POST['element'])) {
-                $selectedLogIds = array_map('absint', $_POST['element']);
-
-                if (!empty($selectedLogIds)) {
-                    // Prepare placeholders for IN clause
-                    $placeholders = array_fill(0, count($selectedLogIds), '%d');
-                    $delete_query = $wpdb->prepare(
-                        "DELETE FROM {$table_name} WHERE id IN (" . implode(',', $placeholders) . ")",
-                        $selectedLogIds
-                    );
-
-                    $deletedCount = $wpdb->query($delete_query);
-
-                    if ($deletedCount > 0) {
-                        add_settings_error(
-                            'performance_logs',
-                            'logs_deleted',
-                            sprintf(_n('%d Row deleted successfully!', '%d Rows deleted successfully!', $deletedCount, 'your-text-domain'), $deletedCount),
-                            'success'
-                        );
-                    }
-                }
-            } elseif (isset($_POST['delete'])) {
-                $id = absint($_POST['delete']);
-
-                $deleted = $wpdb->delete(
-                    $table_name,
-                    array('id' => $id),
-                    array('%d')
-                );
-
-                if ($deleted) {
-                    add_settings_error(
-                        'performance_logs',
-                        'log_deleted',
-                        __('1 Row deleted successfully!', 'your-text-domain'),
-                        'success'
-                    );
-                }
-            }
-        }
-
-        // Display admin notices
-        settings_errors('performance_logs');
-
-        // Fetch data from the database
         $this->table_data = $wpdb->get_results($query, ARRAY_A);
+
+        
+        if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
+            if (isset($_POST['element']) && $_POST['action'] == 'delete_all') {
+                $selectedLogIds = array_map('absint', $_POST['element']);
+                foreach ($selectedLogIds as $logId) {
+                    $wpdb->delete($table_name, array('id' => $logId), array('%d'));
+                }
+                echo '<div class="updated notice"><p>' . count($selectedLogIds) . '&nbsp;Rows deleted successfully!</p></div>';
+            }
+            if (isset($_POST['delete'])) {
+                $id =  $_POST['delete'];
+                $wpdb->delete($table_name, array('id' => $id), array('%d'));
+                echo '<div class="updated notice"><p>1&nbsp;Rows deleted successfully!</p></div>';
+            }
+        }
+
+
         $columns = $this->get_columns();
         $subsubsub = $this->views();
         $hidden = (is_array(get_user_meta(get_current_user_id(), 'aaa', true))) ? get_user_meta(get_current_user_id(), 'dff', true) : array();
@@ -202,7 +138,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
             case 'id':
                 return $item['id'];
             case 'url':
-                return '<a href="' . $item["url"] . '" target="_blank">' . $item["url"] . '</a>';
+                return '<a href="'.$item["url"].'" target="_blank">' . $item["url"] . '</a>';
             case 'execution_time':
                 $total_execution_time = $item['execution_time'] + $item['total_query_time'];
                 return  number_format($total_execution_time, 2) . 's';
