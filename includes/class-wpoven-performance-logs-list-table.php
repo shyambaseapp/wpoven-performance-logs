@@ -69,33 +69,51 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'performance_logs';
-        $query = "SELECT * FROM {$table_name} ";
-
-        if (isset($_POST['s'])) {
+        $query = "SELECT * FROM {$table_name}";
+        
+        // Search functionality
+        if (isset($_POST['s']) && !empty($_POST['s'])) {
             $columns = array('url', 'execution_time', 'post_type', 'ip_address', 'total_queries', 'total_query_time', 'peak_memory_usage', 'timestamp');
             $conditions = array();
+        
             foreach ($columns as $column) {
+                // Prepare each condition with a placeholder
                 $conditions[] = $wpdb->prepare("{$column} LIKE %s", '%' . $wpdb->esc_like($_POST['s']) . '%');
             }
+        
+            // Combine conditions with OR
             $query .= " WHERE " . implode(" OR ", $conditions);
         }
-
-        if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
-            if (isset($_POST['element']) && $_POST['action'] == 'delete_all') {
+        
+        // Deletion functionality
+        if (isset($_POST['action'])) {
+            if ($_POST['action'] === 'delete_all' && isset($_POST['element'])) {
                 $selectedLogIds = array_map('absint', $_POST['element']);
+                $deletedCount = 0;
+        
                 foreach ($selectedLogIds as $logId) {
-                    $wpdb->delete($table_name, array('id' => $logId), array('%d'));
+                    // Prepare delete statement
+                    $result = $wpdb->delete($table_name, array('id' => $logId), array('%d'));
+                    if ($result) {
+                        $deletedCount++;
+                    }
                 }
-                echo '<div class="updated notice"><p>' . count($selectedLogIds) . '&nbsp;Rows deleted successfully!</p></div>';
-            }
-            if (isset($_POST['delete'])) {
-                $id =  $_POST['delete'];
-                $wpdb->delete($table_name, array('id' => $id), array('%d'));
-                echo '<div class="updated notice"><p>1&nbsp;Rows deleted successfully!</p></div>';
+        
+                if ($deletedCount > 0) {
+                    echo '<div class="updated notice"><p>' . $deletedCount . '&nbsp;Rows deleted successfully!</p></div>';
+                }
+            } elseif (isset($_POST['delete'])) {
+                $id = absint($_POST['delete']);
+                // Prepare delete statement
+                if ($wpdb->delete($table_name, array('id' => $id), array('%d'))) {
+                    echo '<div class="updated notice"><p>1&nbsp;Row deleted successfully!</p></div>';
+                }
             }
         }
-
+        
+        // Fetch data from the database
         $this->table_data = $wpdb->get_results($query, ARRAY_A);
+        
         $columns = $this->get_columns();
         $subsubsub = $this->views();
         $hidden = (is_array(get_user_meta(get_current_user_id(), 'aaa', true))) ? get_user_meta(get_current_user_id(), 'dff', true) : array();

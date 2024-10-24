@@ -405,8 +405,7 @@ class Wpoven_Performance_Logs_Admin
 	}
 
 	public function get_latest_admin_bar_data()
-	{
-		
+	{	
 		$return_array = array();
 
 		global $wpdb;
