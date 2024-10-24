@@ -103,7 +103,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
         run: |
-          SLUG="wpoven-logs"  # Replace with your plugin slug
+          SLUG="wpoven-performance-logs"  # Replace with your plugin slug
           DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$SLUG"
 
           RESPONSE=$(curl -s --user "$ADMIN_USER:$ADMIN_PASSWORD" $DASHBOARD_URL)
@@ -115,7 +115,7 @@ jobs:
           else
             echo "Plugin dashboard is accessible."
           fi
-          
+
       # New step: Ensure plugin is active without errors
       - name: Ensure plugin is active
         run: |
