@@ -106,14 +106,16 @@ jobs:
           SLUG="wpoven-logs"  # Replace with your plugin slug
           DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$SLUG"
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --user "$ADMIN_USER:$ADMIN_PASSWORD" $DASHBOARD_URL)
-          if [ $STATUS -ne 200 ]; then
-            echo "Plugin dashboard is not accessible. Status code: $STATUS"
+          RESPONSE=$(curl -s --user "$ADMIN_USER:$ADMIN_PASSWORD" $DASHBOARD_URL)
+          STATUS=$(echo "$RESPONSE" | grep -c "Your Expected Content")  # Replace with specific text that should appear on your plugin page
+
+          if [ $STATUS -eq 0 ]; then
+            echo "Plugin dashboard is not accessible or doesn't contain expected content."
             exit 1
           else
-            echo "Plugin dashboard is accessible. Status code: $STATUS"
+            echo "Plugin dashboard is accessible."
           fi
-
+          
       # New step: Ensure plugin is active without errors
       - name: Ensure plugin is active
         run: |
