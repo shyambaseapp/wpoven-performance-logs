@@ -67,21 +67,78 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     // Bind table with columns, data and all
     function prepare_items()
     {
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'performance_logs';
-        $query = "SELECT * FROM {$table_name} ";
+        $base_query = "SELECT * FROM {$table_name}";
 
         if (isset($_POST['s'])) {
-            $columns = array('url', 'execution_time', 'post_type', 'ip_address', 'total_queries', 'total_query_time', 'peak_memory_usage', 'timestamp');
+            // Unslash and sanitize the search input
+            $search_term = wp_unslash($_POST['s']);
+            $search_term = sanitize_text_field($search_term);
+
+            // Define searchable columns
+            $columns = array(
+                'url',
+                'execution_time',
+                'post_type',
+                'ip_address',
+                'total_queries',
+                'total_query_time',
+                'peak_memory_usage',
+                'timestamp'
+            );
+
             $conditions = array();
+            $placeholders = array();
+
             foreach ($columns as $column) {
-                $conditions[] = $wpdb->prepare("{$column} LIKE %s", '%' . $wpdb->esc_like($_POST['s']) . '%');
+                $conditions[] = "`$column` LIKE %s";
+                $placeholders[] = '%' . $wpdb->esc_like($search_term) . '%';
             }
-            $query .= " WHERE " . implode(" OR ", $conditions);
+
+            // Prepare the complete query safely
+            $where_clause = implode(" OR ", $conditions);
+            $query = $wpdb->prepare("$base_query WHERE $where_clause", $placeholders);
+
+            // Add caching
+            $cache_key = 'performance_logs_' . md5($query);
+            $results = wp_cache_get($cache_key);
+
+            if (false === $results) {
+                $results = $wpdb->get_results($query, ARRAY_A);
+                wp_cache_set($cache_key, $results, 'performance_logs', 3600); // Cache for 1 hour
+            }
+
+            $this->table_data = $results;
+        } else {
+            // Handle case when no search term is provided
+            $cache_key = 'performance_logs_all';
+            $results = wp_cache_get($cache_key);
+
+            if (false === $results) {
+                $results = $wpdb->get_results($base_query, ARRAY_A);
+                wp_cache_set($cache_key, $results, 'performance_logs', 3600);
+            }
+
+            $this->table_data = $results;
         }
-        $this->table_data = $wpdb->get_results($query, ARRAY_A);
 
         
+        // global $wpdb;
+        // $table_name = $wpdb->prefix . 'performance_logs';
+        // $query = "SELECT * FROM {$table_name} ";
+
+        // if (isset($_POST['s'])) {
+        //     $columns = array('url', 'execution_time', 'post_type', 'ip_address', 'total_queries', 'total_query_time', 'peak_memory_usage', 'timestamp');
+        //     $conditions = array();
+        //     foreach ($columns as $column) {
+        //         $conditions[] = $wpdb->prepare("{$column} LIKE %s", '%' . $wpdb->esc_like($_POST['s']) . '%');
+        //     }
+        //     $query .= " WHERE " . implode(" OR ", $conditions);
+        // }
+        // $this->table_data = $wpdb->get_results($query, ARRAY_A);
+
         if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
             if (isset($_POST['element']) && $_POST['action'] == 'delete_all') {
                 $selectedLogIds = array_map('absint', $_POST['element']);
@@ -138,7 +195,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
             case 'id':
                 return $item['id'];
             case 'url':
-                return '<a href="'.$item["url"].'" target="_blank">' . $item["url"] . '</a>';
+                return '<a href="' . $item["url"] . '" target="_blank">' . $item["url"] . '</a>';
             case 'execution_time':
                 $total_execution_time = $item['execution_time'] + $item['total_query_time'];
                 return  number_format($total_execution_time, 2) . 's';
