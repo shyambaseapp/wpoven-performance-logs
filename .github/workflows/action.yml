@@ -15,13 +15,7 @@ jobs:
     env:
       WP_PATH: /var/www/html
       PLUGIN_PATH: /var/www/html/wp-content/plugins/wpoven-performance-logs
-      ADMIN_USER: admin
-      ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
-      ADMIN_EMAIL: admin@example.com
-      PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
-      PLUGIN_SLUG: wpoven-performance-logs
-      WP_VERSION: latest
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,6 +54,10 @@ jobs:
           sudo mv wp-cli.phar /usr/local/bin/wp
 
       - name: Install WordPress
+        env:
+          ADMIN_USER: admin
+          ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
+          ADMIN_EMAIL: admin@example.com
         run: |
           cd $WP_PATH
           wp core install --url="http://localhost" \
@@ -92,10 +90,17 @@ jobs:
            .gitmodules
           exclude-directories: |
             redux-framework
-            plugin-update-checker   
-
+            plugin-update-checker
+        env:
+          PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
+          PLUGIN_SLUG: wpoven-performance-logs
+          WP_VERSION: latest
+          
       # New step: Check if WordPress is still accessible after plugin activation
       - name: Check Plugin Dashboard Accessibility
+        env:
+          ADMIN_USER: admin
+          ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
         run: |
           PLUGIN_SLUG="wpoven-performance-logs"  # Replace with your plugin slug
           DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$PLUGIN_SLUG"
