@@ -101,9 +101,10 @@ jobs:
         env:
           ADMIN_USER: admin
           ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
+          PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
         run: |
-          PLUGIN_SLUG="wpoven-logs"  # Replace with your plugin slug
-          DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$PLUGIN_SLUG"
+          SLUG="wpoven-logs"  # Replace with your plugin slug
+          DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$SLUG"
 
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --user "$ADMIN_USER:$ADMIN_PASSWORD" $DASHBOARD_URL)
           if [ $STATUS -ne 200 ]; then
