@@ -79,6 +79,7 @@ jobs:
             late_escaping
           exclude-files: |
             /var/www/html/wp-content/plugins/wpoven-performance-logs/redux-framework/**
+            /var/www/html/wp-content/plugins/wpoven-performance-logs/redux-framework/.*
             /var/www/html/wp-content/plugins/wpoven-performance-logs/plugin-update-checker/**
         env:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
