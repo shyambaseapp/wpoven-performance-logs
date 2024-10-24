@@ -141,44 +141,7 @@ class Wpoven_Performance_Logs_Admin
 		// Add AJAX action for updating admin bar
 		add_action('wp_ajax_update_admin_bar_data', array($this, 'get_latest_admin_bar_data'));
 		add_action('wp_ajax_nopriv_update_admin_bar_data', array($this, 'get_latest_admin_bar_data'));
-		add_action('admin_menu', array($this, 'check_translations_without_domain'));
-	}
-
-	function check_translations_without_domain() {
-		// Common translation functions to check
-		$translation_functions = [
-			'__',
-			'_e',
-			'esc_html__',
-			'esc_html_e',
-			'esc_attr__',
-			'esc_attr_e',
-			'sprintf',
-			'translate',
-		];
 	
-		// Regular expression pattern
-		$pattern = '/(?:' . implode('|', $translation_functions) . ')\s*\(\s*[\'"].*?[\'"]\s*(?:\)|,)/';
-	
-		// Your results array
-		$results = [];
-		
-		// Scan plugin directory
-		$plugin_dir = plugin_dir_path(__FILE__);
-		$files = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($plugin_dir)
-		);
-	
-		foreach ($files as $file) {
-			if ($file->isFile() && $file->getExtension() === 'php') {
-				$content = file_get_contents($file->getPathname());
-				if (preg_match_all($pattern, $content, $matches)) {
-					$results[$file->getPathname()] = $matches[0];
-				}
-			}
-		}
-	
-		return $results;
 	}
 
 	function custom_wp_list_table_styles()
