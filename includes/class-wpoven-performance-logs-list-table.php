@@ -67,18 +67,12 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     // Bind table with columns, data and all
     function prepare_items()
     {
-
         global $wpdb;
 
-        // Define base query args
-        $query_args = array(
-            'select' => 'SELECT *',
-            'from'   => "FROM {$wpdb->prefix}performance_logs",
-            'where'  => '',
-            'values' => array()
-        );
+        // Build search conditions
+        $where_conditions = array();
+        $prepare_args = array();
 
-        // Add search conditions if search term exists
         if (isset($_POST['s'])) {
             $search_term = wp_unslash($_POST['s']);
             $search_term = sanitize_text_field($search_term);
@@ -94,32 +88,34 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
                 'timestamp'
             );
 
-            $where_conditions = array();
-
             foreach ($search_columns as $column) {
-                $where_conditions[] = $wpdb->prepare(
-                    "`" . esc_sql($column) . "` LIKE %s",
-                    '%' . $wpdb->esc_like($search_term) . '%'
-                );
-            }
-
-            $query_args['where'] = 'WHERE ' . implode(' OR ', $where_conditions);
-        }
-
-        // Build and execute final query
-        $cache_key = 'perf_logs_' . md5($query_args['where']);
-        $results = wp_cache_get($cache_key);
-
-        if (false === $results) {
-            $sql = "{$query_args['select']} {$query_args['from']} {$query_args['where']}";
-            $results = $wpdb->get_results($sql, ARRAY_A);
-
-            if ($results !== null) {
-                wp_cache_set($cache_key, $results, 'performance_logs', HOUR_IN_SECONDS);
+                $where_conditions[] = "`" . esc_sql($column) . "` LIKE %s";
+                $prepare_args[] = '%' . $wpdb->esc_like($search_term) . '%';
             }
         }
 
-        $this->table_data = $results;
+        // Prepare the query
+        if (!empty($where_conditions)) {
+            $sql = $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}performance_logs WHERE " . implode(' OR ', $where_conditions),
+                $prepare_args
+            );
+        } else {
+            $sql = $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}performance_logs"
+            );
+        }
+
+        // Get cached results or execute query
+        $cache_key = 'perf_logs_' . md5($sql);
+        $this->table_data = wp_cache_get($cache_key);
+
+        if (false === $this->table_data) {
+            $this->table_data = $wpdb->get_results($sql, ARRAY_A);
+            if ($this->table_data !== null) {
+                wp_cache_set($cache_key, $this->table_data, 'performance_logs', HOUR_IN_SECONDS);
+            }
+        }
 
         // global $wpdb;
         // $table_name = $wpdb->prefix . 'performance_logs';
