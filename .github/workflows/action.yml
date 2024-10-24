@@ -113,6 +113,18 @@ jobs:
           else
             echo "Plugin dashboard is accessible. Status code: $STATUS"
           fi
+          
+           # Check if the response contains specific content from your plugin's page
+          if echo "$RESPONSE" | grep -q "Performance Logs Settings"; then
+            echo "Plugin dashboard page not found"
+            exit 1
+          elif echo "$RESPONSE" | grep -q "Performance Logs Settings"; then
+            echo "Plugin dashboard is accessible and contains expected content"
+            exit 0
+          else
+            echo "Unexpected response from dashboard"
+            exit 1
+          fi
 
       # New step: Ensure plugin is active without errors
       - name: Ensure plugin is active
