@@ -77,6 +77,9 @@ jobs:
           exclude-checks: |
             i18n_usage
             late_escaping
+          exclude-files: |
+           .gitignore
+           .gitmodules
           exclude-directories: |
             redux-framework
             plugin-update-checker
