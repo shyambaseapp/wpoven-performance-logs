@@ -71,13 +71,34 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
         $table_name = $wpdb->prefix . 'performance_logs';
         $query = "SELECT * FROM {$table_name} ";
 
-        if (isset($_POST['s'])) {
-            $columns = array('url', 'execution_time', 'post_type', 'ip_address', 'total_queries', 'total_query_time', 'peak_memory_usage', 'timestamp');
-            $conditions = array();
+        if (isset($_POST['s']) && !empty($_POST['s'])) {
+            $search_term = sanitize_text_field($_POST['s']); // Sanitize input
+            $search_wild = '%' . $wpdb->esc_like($search_term) . '%';
+            
+            $columns = array(
+                'url',
+                'execution_time',
+                'post_type',
+                'ip_address',
+                'total_queries',
+                'total_query_time',
+                'peak_memory_usage',
+                'timestamp'
+            );
+        
+            $search_conditions = array();
+            $placeholders = array();
+            
             foreach ($columns as $column) {
-                $conditions[] = $wpdb->prepare("{$column} LIKE %s", '%' . $wpdb->esc_like($_POST['s']) . '%');
+                $search_conditions[] = "{$column} LIKE %s";
+                $placeholders[] = $search_wild;
             }
-            $query .= " WHERE " . implode(" OR ", $conditions);
+            
+            $where_clause = ' WHERE ' . implode(' OR ', $search_conditions);
+            $query = $wpdb->prepare(
+                $query . $where_clause,
+                $placeholders
+            );
         }
 
         if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
