@@ -77,8 +77,7 @@ jobs:
           exclude-checks: |
             i18n_usage
             late_escaping
-          exclude-files: |
-            redux-framework/.*
+          exclude-files: redux-framework/.*
 
         env:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
