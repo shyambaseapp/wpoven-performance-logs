@@ -1,3 +1,4 @@
 # Ignore all hidden files
 .*
+redux-framework/.*
 !/.gitignore  # Keep the .gitignore file if needed
