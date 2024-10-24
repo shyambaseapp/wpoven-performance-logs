@@ -88,7 +88,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
                 $conditions[] = "{$column} LIKE %s";
             }
             $query .= " WHERE " . implode(" OR ", $conditions);
-            $query = $wpdb->prepare($query, array_fill(0, count($conditions), $search));
+            //$query = $wpdb->prepare($query, array_fill(0, count($conditions), $search));
         }
 
         if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
@@ -137,6 +137,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     {
         global $wpdb;
         // Execute the prepared query
+        $query = $wpdb->prepare($query);
         return $wpdb->get_results($query, ARRAY_A);
     }
 
