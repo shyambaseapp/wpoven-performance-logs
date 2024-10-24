@@ -407,6 +407,8 @@ class Wpoven_Performance_Logs_Admin
 
 	public function get_latest_admin_bar_data()
 	{
+		check_ajax_referer('ajax_nonce', 'nonce'); 
+		
 		$return_array = array();
 
 		//check_ajax_referer('performance_monitor_nonce', 'nonce');
@@ -614,6 +616,8 @@ class Wpoven_Performance_Logs_Admin
 
 	function wpoven_purge_all_logs()
 	{
+		check_ajax_referer('ajax_nonce', 'nonce'); 
+
 		global $wpdb;
 		$return_array = array();
 
