@@ -87,3 +87,19 @@ jobs:
           PLUGIN_DIR: /var/www/html/wp-content/plugins/wpoven-performance-logs
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: latest
+      # New step: Check if WordPress is still accessible after plugin activation
+      - name: Check site status after plugin activation
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
+          if [ $STATUS -ne 200 ]; then
+            echo "WordPress site is not accessible. Status code: $STATUS"
+            exit 1
+          else
+            echo "WordPress site is accessible. Status code: $STATUS"
+          fi
+
+      # New step: Ensure plugin is active without errors
+      - name: Ensure plugin is active
+        run: |
+          cd $WP_PATH
+          wp plugin is-active wpoven-performance-logs
