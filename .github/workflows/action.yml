@@ -102,7 +102,7 @@ jobs:
           ADMIN_USER: admin
           ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
         run: |
-          PLUGIN_SLUG="wpoven-performance-logs"  # Replace with your plugin slug
+          PLUGIN_SLUG="wpoven-logs"  # Replace with your plugin slug
           DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$PLUGIN_SLUG"
 
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --user "$ADMIN_USER:$ADMIN_PASSWORD" $DASHBOARD_URL)
