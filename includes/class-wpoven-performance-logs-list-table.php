@@ -68,51 +68,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     function prepare_items()
     {
         global $wpdb;
-
-        // Build search conditions
-        $where_conditions = array();
-        $prepare_args = array();
-
-        if (isset($_POST['s'])) {
-            $search_term = wp_unslash($_POST['s']);
-            $search_term = sanitize_text_field($search_term);
-
-            $search_columns = array(
-                'url',
-                'execution_time',
-                'post_type',
-                'ip_address',
-                'total_queries',
-                'total_query_time',
-                'peak_memory_usage',
-                'timestamp'
-            );
-
-            foreach ($search_columns as $column) {
-                $where_conditions[] = "`" . esc_sql($column) . "` LIKE %s";
-                $prepare_args[] = '%' . $wpdb->esc_like($search_term) . '%';
-            }
-        }
-
-        // Prepare the query
-        if (!empty($where_conditions)) {
-            $this->table_data = $wpdb->get_results(
-                "SELECT * FROM {$wpdb->prefix}performance_logs WHERE " . implode(' OR ', $where_conditions),
-                $prepare_args,
-                ARRAY_A
-            );
-        } else {
-            $this->table_data = $wpdb->get_results(
-                "SELECT * FROM {$wpdb->prefix}performance_logs",
-                ARRAY_A
-            );
-        }
-
-        // Get cached results or execute query
-
-
-        // global $wpdb;
-        // $table_name = $wpdb->prefix . 'performance_logs';
+        $table_name = $wpdb->prefix . 'performance_logs';
         // $query = "SELECT * FROM {$table_name} ";
 
         // if (isset($_POST['s'])) {
@@ -123,7 +79,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
         //     }
         //     $query .= " WHERE " . implode(" OR ", $conditions);
         // }
-        // $this->table_data = $wpdb->get_results($query, ARRAY_A);
+       // $this->table_data = $wpdb->get_results($query, ARRAY_A);
 
         if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
             if (isset($_POST['element']) && $_POST['action'] == 'delete_all') {

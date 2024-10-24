@@ -34,7 +34,7 @@ jobs:
       - name: Start MySQL service
         run: sudo service mysql start
 
-      - name: Install WordPress
+      - name: Download WordPress
         run: |
           wget https://wordpress.org/latest.tar.gz
           tar -xzf latest.tar.gz
@@ -53,10 +53,18 @@ jobs:
           chmod +x wp-cli.phar
           sudo mv wp-cli.phar /usr/local/bin/wp
 
-      - name: Install WordPress
+     - name: Install WordPress
+        env:
+          ADMIN_USER: admin
+          ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
+          ADMIN_EMAIL: admin@example.com
         run: |
           cd $WP_PATH
-          wp core install --url="http://localhost" --title="Test Site" --admin_user="admin" --admin_password="password" --admin_email="admin@example.com"
+          wp core install --url="http://localhost" \
+                          --title="Test Site" \
+                          --admin_user="$ADMIN_USER" \
+                          --admin_password="$ADMIN_PASSWORD" \
+                          --admin_email="$ADMIN_EMAIL"
 
       - name: Clone the plugin repository
         run: |
@@ -88,14 +96,20 @@ jobs:
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: latest
       # New step: Check if WordPress is still accessible after plugin activation
-      - name: Check site status after plugin activation $ check
+      - name: Check Plugin Dashboard Accessibility
+        env:
+          ADMIN_USER: admin
+          ADMIN_PASSWORD: ${{ secrets.WP_ADMIN_PASSWORD }}
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
+          PLUGIN_SLUG="wpove-performance-logs"  # Replace with your plugin slug
+          DASHBOARD_URL="http://localhost/wp-admin/admin.php?page=$PLUGIN_SLUG"
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --user "$ADMIN_USER:$ADMIN_PASSWORD" $DASHBOARD_URL)
           if [ $STATUS -ne 200 ]; then
-            echo "WordPress site is not accessible. Status code: $STATUS"
+            echo "Plugin dashboard is not accessible. Status code: $STATUS"
             exit 1
           else
-            echo "WordPress site is accessible. Status code: $STATUS"
+            echo "Plugin dashboard is accessible. Status code: $STATUS"
           fi
 
       # New step: Ensure plugin is active without errors
