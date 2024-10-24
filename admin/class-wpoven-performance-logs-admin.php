@@ -141,7 +141,6 @@ class Wpoven_Performance_Logs_Admin
 		// Add AJAX action for updating admin bar
 		add_action('wp_ajax_update_admin_bar_data', array($this, 'get_latest_admin_bar_data'));
 		add_action('wp_ajax_nopriv_update_admin_bar_data', array($this, 'get_latest_admin_bar_data'));
-	
 	}
 
 	function custom_wp_list_table_styles()
@@ -407,8 +406,8 @@ class Wpoven_Performance_Logs_Admin
 
 	public function get_latest_admin_bar_data()
 	{
-		check_ajax_referer('ajax_nonce', 'nonce'); 
-		
+		check_ajax_referer('ajax_nonce', 'nonce');
+
 		$return_array = array();
 
 		//check_ajax_referer('performance_monitor_nonce', 'nonce');
@@ -462,7 +461,7 @@ class Wpoven_Performance_Logs_Admin
 
 			foreach ($array as $item) {
 
-				if (strpos($_SERVER['REQUEST_URI'], $item)) {
+				if (isset($_SERVER['REQUEST_URI']) && strpos(wp_unslash($_SERVER['REQUEST_URI']), $item)) {
 					return;
 				}
 			}
@@ -616,7 +615,7 @@ class Wpoven_Performance_Logs_Admin
 
 	function wpoven_purge_all_logs()
 	{
-		check_ajax_referer('ajax_nonce', 'nonce'); 
+		check_ajax_referer('ajax_nonce', 'nonce');
 
 		global $wpdb;
 		$return_array = array();
@@ -747,7 +746,7 @@ class Wpoven_Performance_Logs_Admin
 		}
 
 		// while (true) {
-			// //Endless loop
+		// //Endless loop
 		// }
 
 		$options = get_option(WPOVEN_PERFORMANCE_LOGS_SLUG);
