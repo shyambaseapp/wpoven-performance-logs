@@ -70,35 +70,14 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
         global $wpdb;
         $table_name = $wpdb->prefix . 'performance_logs';
         $query = "SELECT * FROM {$table_name} ";
-        if (isset($_POST['s']) && !empty($_POST['s'])) {
-            $search_term = sanitize_text_field($_POST['s']); // Sanitize input
-            $search_wild = '%' . $wpdb->esc_like($search_term) . '%';
-            
-            $columns = array(
-                'url',
-                'execution_time',
-                'post_type',
-                'ip_address',
-                'total_queries',
-                'total_query_time',
-                'peak_memory_usage',
-                'timestamp'
-            );
-        
-            // Generate search conditions and placeholders
-            $search_conditions = array();
-            $placeholders = array();
-            
+
+        if (isset($_POST['s'])) {
+            $columns = array('url', 'execution_time', 'post_type', 'ip_address', 'total_queries', 'total_query_time', 'peak_memory_usage', 'timestamp');
+            $conditions = array();
             foreach ($columns as $column) {
-                $search_conditions[] = "{$column} LIKE %s";
-                $placeholders[] = $search_wild;
+                $conditions[] = $wpdb->prepare("{$column} LIKE %s", '%' . $wpdb->esc_like($_POST['s']) . '%');
             }
-            
-            // Construct the WHERE clause
-            $where_clause = ' WHERE ' . implode(' OR ', $search_conditions);
-            // Prepare the full query with the WHERE clause and placeholders
-            $query .= $where_clause;
-            $query = $wpdb->prepare($query, ...$placeholders); // Spread placeholders
+            $query .= " WHERE " . implode(" OR ", $conditions);
         }
 
         if (isset($_POST['action']) == 'delete_all' || isset($_POST['delete'])) {
@@ -116,7 +95,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
             }
         }
 
-        $this->table_data = $wpdb->get_results($query, ARRAY_A);
+        $this->table_data = $this->get_table_data($query);
         $columns = $this->get_columns();
         $subsubsub = $this->views();
         $hidden = (is_array(get_user_meta(get_current_user_id(), 'aaa', true))) ? get_user_meta(get_current_user_id(), 'dff', true) : array();
