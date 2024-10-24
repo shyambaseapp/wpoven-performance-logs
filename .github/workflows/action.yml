@@ -88,7 +88,7 @@ jobs:
           PLUGIN_SLUG: wpoven-performance-logs
           WP_VERSION: latest
       # New step: Check if WordPress is still accessible after plugin activation
-      - name: Check site status after plugin activation
+      - name: Check site status after plugin activation $ check
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
           if [ $STATUS -ne 200 ]; then
