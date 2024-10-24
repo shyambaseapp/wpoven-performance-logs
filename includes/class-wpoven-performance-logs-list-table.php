@@ -116,7 +116,7 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
             }
         }
 
-        $this->table_data = $this->get_table_data($query);
+        $this->table_data = $wpdb->get_results($query, ARRAY_A);
         $columns = $this->get_columns();
         $subsubsub = $this->views();
         $hidden = (is_array(get_user_meta(get_current_user_id(), 'aaa', true))) ? get_user_meta(get_current_user_id(), 'dff', true) : array();
@@ -147,7 +147,6 @@ class WPOven_Performance_Logs_List_Table extends WP_List_Table
     {
         global $wpdb;
         // Execute the prepared query
-        $query = $wpdb->prepare($query);
         return $wpdb->get_results($query, ARRAY_A);
     }
 
